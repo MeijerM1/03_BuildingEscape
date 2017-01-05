@@ -20,6 +20,14 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
+	UE_LOG(LogTemp, Warning, TEXT("Actor is %s"), *ActorThatOpens->GetName());
+}
+
+void UOpenDoor::OpenDoor()
+{
+
+
 	// Find the owning Actor
 	AActor* Owner = GetOwner();
 
@@ -27,7 +35,9 @@ void UOpenDoor::BeginPlay()
 	FRotator NewRotation = FRotator(0.0f, -75.0f, 0.0f);
 
 	// Set the rotation
-	Owner->SetActorRotation(NewRotation);	
+	Owner->SetActorRotation(NewRotation);
+
+	UE_LOG(LogTemp, Warning, TEXT("Opening door %s"), *Owner->GetName());
 }
 
 
@@ -36,6 +46,15 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ...
+	// Make sure none of the pointers is a null pointer
+	if (ActorThatOpens != nullptr && PressurePlate != nullptr)
+	{
+		// Poll the trigger volume
+		// If the actor that opens is in the volume
+		if (PressurePlate->IsOverlappingActor(ActorThatOpens))
+		{
+			OpenDoor();
+		}
+	}
 }
 
